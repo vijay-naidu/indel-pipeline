@@ -1,0 +1,42 @@
+****** NOTES
+Indel and SNP calling pipeline description with notes
+
+****** ONCE ONLY
+
+1. Get yourself sorted out with a copy of BWA, samtools, bcftools, vcftools and Pilon (as jar file)
+
+1b. Add to path, for example:
+export PATH=$PATH:/Users/myname/bwa/
+export PATH=$PATH:/Users/myname/samtools-1.9/
+export PATH=$PATH:/Users/myname/bcftools-1.9/
+
+2. Download a TB reference genome (eg H37Rv, NC_000962.3) in fasta format, save as .fa extension
+
+3. Index the reference (~1sec)
+bwa index ref.fa
+
+****** PER PAIR
+
+4. Align the reads (in fastq format) against the reference with bwa mem (~2.5min)
+bwa mem ref.fa reads1.fastq reads2.fastq > name.sam 
+
+5. Convert sam to bam (~1min) 
+samtools view -bS name.sam > name.bam
+(-b outputs a BAM, -S auto-detects input format)
+
+6. Sort the BAM (~30sec)
+samtools sort name.bam -o name.sorted
+(-o writes the output to the specified file)
+
+7. Index the sorted BAM (~1 sec)
+samtools index name.sorted
+
+8. Call SNPs and indels with pilon (~3min)
+java -jar pilon-1.22.jar --name ref.fa --frags name.sorted --output name --vcf
+
+9. Filter the vcf file for SNPs(~30sec)
+vcftools --vcf name.vcf --keep-only-indels --out name --recode --recode-INFO-all
+
+10. Filter the vcf file for Indels(~30sec)
+vcftools --vcf name.vcf --out 'snps'+name --recode --recode-INFO-all --non-ref-ac-any 1
+
