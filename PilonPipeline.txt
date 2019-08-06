@@ -33,6 +33,7 @@ samtools index name.sorted
 
 8. Call SNPs and indels with pilon (~3min)
 java -jar pilon-1.22.jar --name ref.fa --frags name.sorted --output name --vcf
+java -jar pilon-1.23.jar --genome ref.fa --frags name.sorted --output name --vcf
 
 9. Filter the vcf file for SNPs(~30sec)
 vcftools --vcf name.vcf --keep-only-indels --out name --recode --recode-INFO-all
